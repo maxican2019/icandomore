@@ -31,4 +31,4 @@ Ganti file dengan nama yang sama lewat *Add file → Upload files*. Jangan hapus
 - Kebijakan Privasi: `/privacy.html`
 - Syarat & Ketentuan: `/terms.html`
 
-Kontak: ican.aulya@gmail.com
+Kontak: icandomoredev@gmail.com
