@@ -10,11 +10,12 @@ Website portofolio **icandomore**, nama developer (alias) Ichsan Aulyansyah. Ber
 | `privacy.html` | Kebijakan Privasi (URL untuk Play Console) |
 | `terms.html` | Syarat & Ketentuan |
 | `style.css` | Gaya untuk halaman privasi dan syarat |
+| `video/` | Video perkenalan icantartil dan gambar poster-nya |
 
 ## Cara menayangkan (GitHub Pages)
 
 1. Buat repositori publik bernama `usernamekamu.github.io`.
-2. Unggah semua file di atas lewat *Add file → Upload files*, lalu *Commit changes*.
+2. Unggah semua file di atas lewat *Add file → Upload files*, lalu *Commit changes*. Folder `video` cukup diseret ke halaman unggah.
 3. Buka *Settings → Pages*, pilih *Deploy from a branch*, branch `main`, folder `/ (root)`, lalu simpan.
 4. Situs aktif di `https://usernamekamu.github.io`.
 
@@ -31,4 +32,4 @@ Ganti file dengan nama yang sama lewat *Add file → Upload files*. Jangan hapus
 - Kebijakan Privasi: `/privacy.html`
 - Syarat & Ketentuan: `/terms.html`
 
-Kontak: icandomoredev@gmail.com
+Kontak: ican.aulya@gmail.com
