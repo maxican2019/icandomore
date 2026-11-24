@@ -191,6 +191,16 @@ a.st{text-decoration:underline;text-underline-offset:3px;font-weight:800}
   </div>
 </div></section>
 
+<section id="iklan-icankeepgold"><div class="wrap">
+  <span class="tag">Sorotan</span>
+  <h2>icankeepgold dalam 45 detik</h2>
+  <p class="sub">Penasaran emas batanganmu sekarang untung berapa? Tonton video singkat ini untuk melihat cara kerja icankeepgold.</p>
+  <div class="vid">
+    <div class="vframe"><video controls playsinline preload="none" poster="video/poster-icankeepgold.jpg"><source src="video/icankeepgold-promo.mp4" type="video/mp4">Browser kamu belum mendukung pemutar video.</video></div>
+    <div class="vtext"><h3>Brankas Digital untuk Emasmu</h3><p>Catat pembelian emas, pantau nilainya, dan hitung untung rugi dalam satu aplikasi.</p><a class="btn p" id="kg-tester" href="mailto:ican.aulya@gmail.com">✉️ Ajukan jadi penguji</a><small>Saat ini icankeepgold masih dalam uji coba tertutup di Google Play. Ikut menjadi penguji gratis.</small></div>
+  </div>
+</div></section>
+
 <section id="perjalanan"><div class="wrap">
   <span class="tag">Level Up</span>
   <h2>Peta Perjalanan Belajar</h2>
@@ -232,6 +242,7 @@ grid.innerHTML=APPS.map(a=>{
  const st=a.m?`<a class="st" style="color:${a.k}" href="${mail}">${a.s} ›</a><small class="fr">Gratis. Klik status untuk mengajukan jadi penguji lewat email.</small>`:`<span class="st" style="color:${a.k}">${a.s}</span>`;
  const btn=a.p?`<a class="btn" href="${a.p}" target="_blank" rel="noopener">▶ Dapatkan di Google Play</a>`:a.m?`<a class="btn" href="${mail}">✉️ Ajukan jadi penguji</a>`:`<button class="btn" data-t="${a.t}">ℹ️ Lihat status</button>`;
  return `<article class="app" data-c="${a.c}"><div class="ic" style="background:${a.b}">${ic}</div><h3>${a.n}</h3><p>${a.d}</p>${st}${btn}</article>`}).join('');
+$('#kg-tester').href=tester('icankeepgold');
 grid.onclick=e=>{const b=e.target.closest('button[data-t]');if(b)toast(b.dataset.t)};
 $('#filters').onclick=e=>{const f=e.target.closest('.f');if(!f)return;document.querySelectorAll('.f').forEach(x=>x.classList.toggle('on',x===f));
  grid.querySelectorAll('.app').forEach(a=>a.classList.toggle('hide',f.dataset.c!=='all'&&a.dataset.c!==f.dataset.c))};
