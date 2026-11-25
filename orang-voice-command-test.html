@@ -181,21 +181,25 @@ if(!SR){
   rec.lang = 'id-ID';
   rec.continuous = false;
   rec.interimResults = true;
-  rec.onstart = ()=>{ window.__started=true; log('start: mendengarkan dimulai'); };
+  rec.onstart = ()=>{ window.__started=true; window.__lastCmd=null; log('start: mendengarkan dimulai'); };
   rec.onaudiostart = ()=>log('audiostart: audio mikrofon masuk');
   rec.onsoundstart = ()=>log('soundstart: ada bunyi');
   rec.onaudioend = ()=>log('audioend');
   rec.onnomatch = ()=>log('nomatch: suara tidak dikenali');
   rec.onspeechstart = ()=>log('speechstart: suara terdeteksi');
   rec.onresult = e=>{
-    const r = e.results[e.results.length-1];
-    const text = r[0].transcript.trim();
+    let text='';
+    for(let k=0;k<e.results.length;k++) text += e.results[k][0].transcript+' ';
+    text = text.trim();
     statusEl.textContent = 'Terdengar: "'+text+'"';
-    if(r.isFinal){
-      log('hasil: "'+text+'"');
-      const cmd = parse(text);
-      if(cmd){ run(cmd); statusEl.textContent += ' → '+cmd; }
-      else statusEl.textContent += ' (perintah tidak dikenal)';
+    const cmd = parse(text);
+    if(cmd && cmd !== window.__lastCmd){
+      window.__lastCmd = cmd;
+      log('perintah: "'+text+'" → '+cmd);
+      run(cmd);
+      statusEl.textContent += ' → '+cmd;
+    } else if(!cmd && e.results[e.results.length-1].isFinal){
+      statusEl.textContent += ' (perintah tidak dikenal)';
     }
   };
   rec.onerror = e=>{
@@ -203,9 +207,12 @@ if(!SR){
     const m = {'not-allowed':'Izin mikrofon ditolak atau diblokir.',
       'service-not-allowed':'Layanan suara diblokir oleh browser.',
       'no-speech':'Tidak ada suara terdeteksi. Coba bicara lebih dekat ke mikrofon.',
-      'network':'Gagal terhubung ke layanan suara Google. Cek internet, VPN, atau pakai Chrome biasa.',
+      'network':'Browser tidak bisa menjangkau layanan suara. Matikan VPN, atau coba Safari / Google Chrome asli / Edge.',
       'audio-capture':'Mikrofon tidak ditemukan.','language-not-supported':'Bahasa tidak didukung.'};
     statusEl.textContent = m[e.error] || ('Error: '+e.error);
+    if(['network','not-allowed','service-not-allowed','audio-capture','language-not-supported'].includes(e.error)){
+      window.__fatal=true; log('Berhenti mencoba ulang karena error ini tidak bisa diatasi otomatis.');
+    }
   };
   rec.onend = ()=>{
     log('end: sesi selesai');
