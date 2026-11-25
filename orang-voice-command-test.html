@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Si Budi: animasi perintah suara</title>
+<style>
+  :root{--bg:#e8f1f5;--ground:#9bb98a;--ink:#23323a;--skin:#f2c9a0;--shirt:#e2573c;--pants:#2f4b7c;--panel:#ffffffcc}
+  @media (prefers-color-scheme: dark){:root{--bg:#1b2730;--ground:#44614a;--ink:#e8eef1;--panel:#26343ecc}}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column}
+  .stage{position:relative;flex:1;min-height:320px;overflow:hidden}
+  .ground{position:absolute;left:0;right:0;bottom:0;height:22%;background:var(--ground)}
+  #budi{position:absolute;bottom:calc(22% - 6px);left:50%;width:90px;height:190px;margin-left:-45px;transition:left .1s linear}
+  .bubble{position:absolute;bottom:200px;left:50%;transform:translateX(-50%);background:var(--panel);padding:6px 12px;border-radius:14px;font-size:14px;white-space:nowrap;opacity:0;transition:opacity .2s}
+  .bubble.on{opacity:1}
+  .part{position:absolute;transform-origin:50% 0}
+  .head{left:25px;top:0;width:40px;height:40px;border-radius:50%;background:var(--skin);z-index:3}
+  .head::before,.head::after{content:"";position:absolute;top:16px;width:5px;height:5px;border-radius:50%;background:#23323a}
+  .head::before{left:11px}.head::after{right:11px}
+  .mouth{position:absolute;left:14px;top:27px;width:12px;height:4px;border-radius:0 0 8px 8px;background:#23323a}
+  .body{left:27px;top:40px;width:36px;height:60px;border-radius:10px;background:var(--shirt);z-index:2}
+  .arm{top:44px;width:12px;height:52px;border-radius:6px;background:var(--skin);z-index:1}
+  .arm.l{left:13px}.arm.r{left:65px}
+  .leg{top:98px;width:15px;height:70px;border-radius:6px;background:var(--pants)}
+  .leg.l{left:27px}.leg.r{left:48px}
+  #budi.face-left .rig{transform:scaleX(-1)}
+  .rig{position:absolute;inset:0}
+  /* animasi */
+  .walk .leg.l{animation:sw .5s ease-in-out infinite alternate}
+  .walk .leg.r{animation:sw .5s ease-in-out infinite alternate-reverse}
+  .walk .arm.l{animation:sw .5s ease-in-out infinite alternate-reverse}
+  .walk .arm.r{animation:sw .5s ease-in-out infinite alternate}
+  @keyframes sw{from{transform:rotate(-28deg)}to{transform:rotate(28deg)}}
+  .jump .rig{animation:jmp .7s ease-out}
+  @keyframes jmp{0%,100%{transform:translateY(0)}45%{transform:translateY(-90px)}}
+  .wave .arm.r{animation:wv .35s ease-in-out infinite alternate;transform-origin:50% 6px}
+  @keyframes wv{from{transform:rotate(150deg)}to{transform:rotate(200deg)}}
+  .dance .rig{animation:dn .4s ease-in-out infinite alternate}
+  .dance .arm.l{animation:wv .4s ease-in-out infinite alternate}
+  .dance .arm.r{animation:wv .4s ease-in-out infinite alternate-reverse}
+  @keyframes dn{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+  .sit .leg{transform:rotate(-85deg)}
+  .sit .rig{transform:translateY(40px)}
+  .panel{background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:10px;border-top:1px solid #0002}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid #0003;background:transparent;color:inherit;cursor:pointer}
+  button:hover{background:#0001}
+  button:focus-visible{outline:3px solid #2f80ed;outline-offset:2px}
+  #mic{background:var(--shirt);color:#fff;border-color:transparent;font-weight:600}
+  #mic.on{background:#1e8f5a}
+  #status{font-size:14px;min-height:1.3em}
+  small{opacity:.75}
+  @media (prefers-reduced-motion:reduce){.walk *,.wave *,.dance *{animation-duration:2s!important}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div id="budi">
+    <div class="bubble" id="bubble"></div>
+    <div class="rig">
+      <div class="part leg l"></div><div class="part leg r"></div>
+      <div class="part arm l"></div><div class="part arm r"></div>
+      <div class="part body"></div>
+      <div class="part head"><div class="mouth"></div></div>
+    </div>
+  </div>
+  <div class="ground"></div>
+</div>
+<div class="panel">
+  <div class="row">
+    <button id="mic">Mulai mendengarkan</button>
+    <span id="status">Klik tombol, izinkan mikrofon, lalu ucapkan perintah.</span>
+  </div>
+  <div class="row" id="manual">
+    <button data-c="kanan">Jalan kanan</button>
+    <button data-c="kiri">Jalan kiri</button>
+    <button data-c="lompat">Lompat</button>
+    <button data-c="lambai">Lambaikan tangan</button>
+    <button data-c="joget">Joget</button>
+    <button data-c="duduk">Duduk</button>
+    <button data-c="berhenti">Berhenti</button>
+  </div>
+  <div class="row"><button id="test">Tes mikrofon</button>
+    <div style="flex:1;min-width:140px;height:10px;border-radius:5px;background:#0002;overflow:hidden"><div id="lvl" style="height:100%;width:0;background:#1e8f5a"></div></div></div>
+  <pre id="log" style="margin:0;max-height:110px;overflow:auto;font-size:12px;background:#0001;padding:8px;border-radius:6px;white-space:pre-wrap">Log diagnosis:</pre>
+  <small>Perintah suara: "jalan kanan", "jalan kiri", "lompat", "lambai", "joget", "duduk", "berdiri", "berhenti". Perlu Chrome atau Edge dan koneksi internet.</small>
+</div>
+
+<script>
+const budi = document.getElementById('budi');
+const bubble = document.getElementById('bubble');
+const statusEl = document.getElementById('status');
+const micBtn = document.getElementById('mic');
+let x = 0, dir = 0, bubbleTimer;
+
+function setPose(p){
+  budi.classList.remove('walk','jump','wave','dance','sit');
+  if(p) budi.classList.add(p);
+}
+function say(t){
+  bubble.textContent = t; bubble.classList.add('on');
+  clearTimeout(bubbleTimer);
+  bubbleTimer = setTimeout(()=>bubble.classList.remove('on'),1800);
+}
+function run(cmd){
+  switch(cmd){
+    case 'kanan': dir=1; budi.classList.remove('face-left'); setPose('walk'); say('Siap, ke kanan!'); break;
+    case 'kiri': dir=-1; budi.classList.add('face-left'); setPose('walk'); say('Siap, ke kiri!'); break;
+    case 'lompat': { const w=dir; setPose('jump'); say('Hup!');
+      setTimeout(()=>{ setPose(w?'walk':''); },700); break; }
+    case 'lambai': dir=0; setPose('wave'); say('Halo!'); break;
+    case 'joget': dir=0; setPose('dance'); say('Ayo joget!'); break;
+    case 'duduk': dir=0; setPose('sit'); say('Duduk dulu.'); break;
+    case 'berdiri': case 'berhenti': dir=0; setPose(''); say('Oke.'); break;
+  }
+}
+const keywords = [
+  ['kanan','kanan'],['kiri','kiri'],['lompat','lompat'],['loncat','lompat'],
+  ['lambai','lambai'],['halo','lambai'],['joget','joget'],['menari','joget'],
+  ['duduk','duduk'],['berdiri','berdiri'],['berhenti','berhenti'],['stop','berhenti'],['diam','berhenti']
+];
+function parse(text){
+  const t = text.toLowerCase();
+  for(const [k,c] of keywords) if(t.includes(k)) return c;
+  return null;
+}
+
+// gerak horizontal
+let last = performance.now();
+function loop(now){
+  const dt = (now-last)/1000; last = now;
+  if(dir){
+    const half = budi.parentElement.clientWidth/2 - 60;
+    x = Math.max(-half, Math.min(half, x + dir*160*dt));
+    budi.style.transform = `translateX(${x}px)`;
+    if(Math.abs(x)>=half){ dir=0; setPose(''); }
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+document.querySelectorAll('#manual button').forEach(b=>b.onclick=()=>run(b.dataset.c));
+
+// pengenalan suara + diagnosis
+const logEl = document.getElementById('log');
+function log(m){ logEl.textContent += m+'\n'; logEl.scrollTop = logEl.scrollHeight; }
+log('Browser: '+navigator.userAgent.replace(/\(.*?\)/,'').slice(0,80));
+log('Alamat: '+location.protocol+'//'+(location.host||'(file)'));
+
+// tes mikrofon + meter volume
+document.getElementById('test').onclick = async ()=>{
+  try{
+    const st = await navigator.mediaDevices.getUserMedia({audio:true});
+    log('Mikrofon OK: '+st.getAudioTracks()[0].label);
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    const an = ac.createAnalyser(); ac.createMediaStreamSource(st).connect(an);
+    const buf = new Uint8Array(an.fftSize); const t0=Date.now();
+    (function tick(){
+      an.getByteTimeDomainData(buf);
+      let m=0; for(const v of buf) m=Math.max(m,Math.abs(v-128));
+      document.getElementById('lvl').style.width=Math.min(100,m*2.5)+'%';
+      if(Date.now()-t0<8000) requestAnimationFrame(tick);
+      else { st.getTracks().forEach(t=>t.stop()); ac.close(); document.getElementById('lvl').style.width='0'; log('Tes selesai.'); }
+    })();
+    log('Bicara sekarang (8 detik): bar hijau harus bergerak.');
+  }catch(e){ log('Mikrofon GAGAL: '+e.name+' - '+e.message); }
+};
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec, listening = false;
+const isFile = location.protocol==='file:';
+if(!SR){
+  micBtn.disabled = true;
+  statusEl.textContent = 'Browser ini tidak mendukung pengenalan suara. Gunakan Chrome atau Edge, atau pakai tombol manual.';
+  log('SpeechRecognition TIDAK tersedia di browser ini.');
+} else {
+  log('SpeechRecognition tersedia.');
+  rec = new SR();
+  rec.lang = 'id-ID';
+  rec.continuous = false;
+  rec.interimResults = true;
+  rec.onstart = ()=>{ window.__started=true; log('start: mendengarkan dimulai'); };
+  rec.onaudiostart = ()=>log('audiostart: audio mikrofon masuk');
+  rec.onspeechstart = ()=>log('speechstart: suara terdeteksi');
+  rec.onresult = e=>{
+    const r = e.results[e.results.length-1];
+    const text = r[0].transcript.trim();
+    statusEl.textContent = 'Terdengar: "'+text+'"';
+    if(r.isFinal){
+      log('hasil: "'+text+'"');
+      const cmd = parse(text);
+      if(cmd){ run(cmd); statusEl.textContent += ' → '+cmd; }
+      else statusEl.textContent += ' (perintah tidak dikenal)';
+    }
+  };
+  rec.onerror = e=>{
+    log('ERROR: '+e.error+(e.message?' - '+e.message:''));
+    const m = {'not-allowed':'Izin mikrofon ditolak atau diblokir.',
+      'service-not-allowed':'Layanan suara diblokir oleh browser.',
+      'no-speech':'Tidak ada suara terdeteksi. Coba bicara lebih dekat ke mikrofon.',
+      'network':'Gagal terhubung ke layanan suara Google. Cek internet, VPN, atau pakai Chrome biasa.',
+      'audio-capture':'Mikrofon tidak ditemukan.','language-not-supported':'Bahasa tidak didukung.'};
+    statusEl.textContent = m[e.error] || ('Error: '+e.error);
+  };
+  rec.onend = ()=>{
+    log('end: sesi selesai');
+    if(!window.__started){
+      log('Sesi berakhir TANPA pernah mulai. Chrome memblokir ini di alamat file://. Jalankan lewat http://localhost (lihat petunjuk).');
+      statusEl.textContent='Diblokir Chrome di mode file. Buka lewat http://localhost, lihat petunjuk di chat.';
+      window.__fatal=true;
+    }
+    if(listening && !isFile && !window.__fatal){ setTimeout(()=>{ try{rec.start();}catch(_){} },300); }
+    else stop();
+  };
+  micBtn.onclick = ()=> listening ? stop() : start();
+}
+async function start(){
+  window.__started=false; window.__fatal=false;
+  listening=true; micBtn.textContent='Berhenti mendengarkan'; micBtn.classList.add('on');
+  statusEl.textContent='Meminta izin mikrofon…';
+  try{
+    if(navigator.permissions){
+      try{ const p=await navigator.permissions.query({name:'microphone'}); log('Status izin mikrofon: '+p.state); }catch(_){}
+    }
+    const st=await navigator.mediaDevices.getUserMedia({audio:true});
+    st.getTracks().forEach(t=>t.stop());
+    log('Izin mikrofon diberikan.');
+  }catch(e){
+    log('Izin mikrofon GAGAL: '+e.name+' - '+e.message);
+    statusEl.textContent='Izin mikrofon ditolak/diblokir ('+e.name+').';
+    stop(); return;
+  }
+  statusEl.textContent='Mendengarkan… ucapkan perintah.';
+  try{rec.start();}catch(e){ log('start gagal: '+e.message); }
+}
+function stop(){ listening=false; micBtn.textContent='Mulai mendengarkan'; micBtn.classList.remove('on');
+  try{rec.stop();}catch(_){} }
+</script>
+</body>
+</html>
