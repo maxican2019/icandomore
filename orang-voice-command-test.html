@@ -147,7 +147,7 @@ document.querySelectorAll('#manual button').forEach(b=>b.onclick=()=>run(b.datas
 const logEl = document.getElementById('log');
 function log(m){ logEl.textContent += m+'\n'; logEl.scrollTop = logEl.scrollHeight; }
 log('Browser: '+navigator.userAgent.replace(/\(.*?\)/,'').slice(0,80));
-log('Alamat: '+location.protocol+'//'+(location.host||'(file)'));
+log('Alamat: '+location.protocol+'//'+(location.host||'(file)')+' | secure: '+window.isSecureContext);
 
 // tes mikrofon + meter volume
 document.getElementById('test').onclick = async ()=>{
@@ -183,6 +183,9 @@ if(!SR){
   rec.interimResults = true;
   rec.onstart = ()=>{ window.__started=true; log('start: mendengarkan dimulai'); };
   rec.onaudiostart = ()=>log('audiostart: audio mikrofon masuk');
+  rec.onsoundstart = ()=>log('soundstart: ada bunyi');
+  rec.onaudioend = ()=>log('audioend');
+  rec.onnomatch = ()=>log('nomatch: suara tidak dikenali');
   rec.onspeechstart = ()=>log('speechstart: suara terdeteksi');
   rec.onresult = e=>{
     const r = e.results[e.results.length-1];
@@ -207,9 +210,14 @@ if(!SR){
   rec.onend = ()=>{
     log('end: sesi selesai');
     if(!window.__started){
-      log('Sesi berakhir TANPA pernah mulai. Chrome memblokir ini di alamat file://. Jalankan lewat http://localhost (lihat petunjuk).');
-      statusEl.textContent='Diblokir Chrome di mode file. Buka lewat http://localhost, lihat petunjuk di chat.';
       window.__fatal=true;
+      if(location.protocol==='file:'){
+        log('Sesi berakhir TANPA mulai. Chrome memblokir ini di file://. Buka lewat http://localhost atau https.');
+        statusEl.textContent='Diblokir di mode file. Buka lewat localhost atau https.';
+      } else {
+        log('Sesi berakhir TANPA mulai di '+location.origin+'. Kemungkinan: mikrofon Chrome/macOS diblokir, atau layanan suara Google tidak terjangkau.');
+        statusEl.textContent='Pengenalan suara tidak bisa mulai. Cek log dan izin mikrofon (Chrome dan macOS).';
+      }
     }
     if(listening && !isFile && !window.__fatal){ setTimeout(()=>{ try{rec.start();}catch(_){} },300); }
     else stop();
