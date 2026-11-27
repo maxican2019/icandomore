@@ -207,6 +207,10 @@ a.st{text-decoration:underline;text-underline-offset:3px;font-weight:800}
       <div class="vframe"><video controls playsinline preload="none" poster="video/poster-icankeepgold.jpg"><source src="video/icankeepgold-promo.mp4" type="video/mp4">Browser kamu belum mendukung pemutar video.</video></div>
       <div class="vtext"><span class="vl">icankeepgold · 45 detik</span><h3>Brankas Digital untuk Emasmu</h3><p>Penasaran emas batanganmu sekarang untung berapa? Catat pembelian, pantau nilainya, dan hitung untung rugi dalam satu aplikasi.</p><a class="btn p" id="kg-tester" href="mailto:ican.aulya@gmail.com">✉️ Ajukan jadi penguji</a><small>Saat ini icankeepgold masih dalam uji coba tertutup di Google Play. Ikut menjadi penguji gratis.</small></div>
     </article>
+    <article class="slide" id="sorotan-icanmath">
+      <div class="vframe"><video controls playsinline preload="none" poster="video/poster-icanmath.jpg"><source src="video/icanmath-promo.mp4" type="video/mp4">Browser kamu belum mendukung pemutar video.</video></div>
+      <div class="vtext"><span class="vl">icanmath · 53 detik</span><h3>Matematika Jadi Petualangan</h3><p>Anak bilang matematika itu membosankan? Belajar sambil bermain, capai target, dan raih medali digital sebagai hadiah.</p><a class="btn p" id="math-tester" href="mailto:ican.aulya@gmail.com">✉️ Ajukan jadi penguji</a><small>Saat ini icanmath masih dalam uji coba tertutup di Google Play. Ikut menjadi penguji gratis.</small></div>
+    </article>
   </div>
   <div class="cbar"><button class="cb" id="cprev" aria-label="Sebelumnya">‹</button><span class="dots" id="cdots"></span><button class="cb" id="cnext" aria-label="Berikutnya">›</button></div>
 </div></section>
@@ -254,6 +258,7 @@ grid.innerHTML=APPS.map(a=>{
  const btn=a.p?`<a class="gp" href="${a.p}" target="_blank" rel="noopener" aria-label="Get it on Google Play">${GP}</a>`:a.m?`<a class="btn" href="${mail}">✉️ Ajukan jadi penguji</a>`:`<button class="btn" data-t="${a.t}">ℹ️ Lihat status</button>`;
  return `<article class="app" data-c="${a.c}"><div class="ic" style="background:${a.b}">${ic}</div><h3>${a.n}</h3><p>${a.d}</p>${st}${btn}</article>`}).join('');
 $('#kg-tester').href=tester('icankeepgold');
+$('#math-tester').href=tester('icanmath');
 grid.onclick=e=>{const b=e.target.closest('button[data-t]');if(b)toast(b.dataset.t)};
 $('#filters').onclick=e=>{const f=e.target.closest('.f');if(!f)return;document.querySelectorAll('.f').forEach(x=>x.classList.toggle('on',x===f));
  grid.querySelectorAll('.app').forEach(a=>a.classList.toggle('hide',f.dataset.c!=='all'&&a.dataset.c!==f.dataset.c))};
